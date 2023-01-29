@@ -27,27 +27,8 @@ export default {
       showAddTask: false
     }
   },
-  created() {
-    this.tasks = [
-      {
-        id: 1,
-        text: 'Docs Appoint',
-        day: 'March 1st',
-        reminder: true,
-      },
-      {
-        id: 2,
-        text: 'School Appoint',
-        day: 'March 2st',
-        reminder: true,
-      },
-      {
-        id: 3,
-        text: 'Food Appoint',
-        day: 'March 3st',
-        reminder: false,
-      },
-    ]
+  async created() {
+    this.tasks = await this.fetchTasks()
   },
   methods: {
     deleteTask(id) {
@@ -60,11 +41,31 @@ export default {
         task.id === id ? {...task, reminder: !task.reminder} : task
       )
     },
-    addTask(task) {
-      this.tasks = [...this.tasks, task]
+    async addTask(task) {
+      const res = await fetch('api/tasks', {
+        method: 'POST', 
+        header: {
+          'Content-type': 'application/json',
+        },
+        body: JSON.stringify(task),
+      })
+
+      const data = await res.json()
+
+      this.tasks = [...this.tasks, data]
     },
     toggleAddTask() {
       this.showAddTask = !this.showAddTask
+    },
+    async fetchTasks() {
+      const res = await fetch('api/tasks')
+      const data = await res.json()
+      return data
+    },
+    async fetchTask(id) {
+      const res = await fetch(`api/tasks/${id}`)
+      const data = await res.json()
+      return data
     }
   }
 }
